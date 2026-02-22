@@ -1,5 +1,9 @@
-public abstract class NotificationSender {
+public abstract class NotificationSender<T> {
     protected final AuditLog audit;
-    protected NotificationSender(AuditLog audit) { this.audit = audit; }
-    public abstract void send(Notification n);
+
+    protected NotificationSender(AuditLog audit) {
+        this.audit = audit;
+    }
+
+    public abstract void send(T message);
 }
