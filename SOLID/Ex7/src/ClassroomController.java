@@ -1,27 +1,36 @@
+/**
+ * ClassroomController depends only on the specific capability interfaces it
+ * needs.
+ * It retrieves a device by name and casts to the required interface — no device
+ * is forced to implement capabilities it does not possess (ISP).
+ */
 public class ClassroomController {
     private final DeviceRegistry reg;
 
-    public ClassroomController(DeviceRegistry reg) { this.reg = reg; }
+    public ClassroomController(DeviceRegistry reg) {
+        this.reg = reg;
+    }
 
     public void startClass() {
-        SmartClassroomDevice pj = reg.getFirstOfType("Projector");
+        IPowerControl pj = (IPowerControl) reg.getFirstOfType("Projector");
+        IInputConnection pjIn = (IInputConnection) reg.getFirstOfType("Projector");
         pj.powerOn();
-        pj.connectInput("HDMI-1");
+        pjIn.connectInput("HDMI-1");
 
-        SmartClassroomDevice lights = reg.getFirstOfType("LightsPanel");
+        IBrightnessControl lights = (IBrightnessControl) reg.getFirstOfType("LightsPanel");
         lights.setBrightness(60);
 
-        SmartClassroomDevice ac = reg.getFirstOfType("AirConditioner");
+        ITemperatureControl ac = (ITemperatureControl) reg.getFirstOfType("AirConditioner");
         ac.setTemperatureC(24);
 
-        SmartClassroomDevice scan = reg.getFirstOfType("AttendanceScanner");
+        IScanner scan = (IScanner) reg.getFirstOfType("AttendanceScanner");
         System.out.println("Attendance scanned: present=" + scan.scanAttendance());
     }
 
     public void endClass() {
         System.out.println("Shutdown sequence:");
-        reg.getFirstOfType("Projector").powerOff();
-        reg.getFirstOfType("LightsPanel").powerOff();
-        reg.getFirstOfType("AirConditioner").powerOff();
+        ((IPowerControl) reg.getFirstOfType("Projector")).powerOff();
+        ((IPowerControl) reg.getFirstOfType("LightsPanel")).powerOff();
+        ((IPowerControl) reg.getFirstOfType("AirConditioner")).powerOff();
     }
 }
