@@ -1,0 +1,147 @@
+@startuml SnakesAndLadders_ClassDiagram
+
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #FEFEFE
+skinparam classBorderColor #333333
+skinparam packageBackgroundColor #F0F4FF
+skinparam packageBorderColor #4477AA
+skinparam shadowing false
+
+title Snakes & Ladders — Class Diagram
+
+package "com.snakeladder.model" {
+
+    class Cell {
+        - cellNumber : int
+        - snake : Snake
+        - ladder : Ladder
+        --
+        + getCellNumber() : int
+        + getSnake() : Snake
+        + setSnake(snake : Snake) : void
+        + getLadder() : Ladder
+        + setLadder(ladder : Ladder) : void
+        + hasSnake() : boolean
+        + hasLadder() : boolean
+    }
+
+    class Snake {
+        - head : int
+        - tail : int
+        --
+        + Snake(head : int, tail : int)
+        + getHead() : int
+        + getTail() : int
+    }
+
+    class Ladder {
+        - start : int
+        - end : int
+        --
+        + Ladder(start : int, end : int)
+        + getStart() : int
+        + getEnd() : int
+    }
+
+    class Player {
+        - name : String
+        - position : int
+        --
+        + Player(name : String)
+        + getName() : String
+        + getPosition() : int
+        + setPosition(position : int) : void
+    }
+
+    class Board {
+        - n : int
+        - totalCells : int
+        - cells : Cell[]
+        - snakes : List<Snake>
+        - ladders : List<Ladder>
+        --
+        + Board(n : int)
+        - placeSnakesAndLadders() : void
+        + getFinalPosition(position : int) : int
+        + getTotalCells() : int
+        + getN() : int
+        + getSnakes() : List<Snake>
+        + getLadders() : List<Ladder>
+        + printLayout() : void
+    }
+
+}
+
+package "com.snakeladder.service" {
+
+    enum Difficulty {
+        EASY
+        HARD
+    }
+
+    class Dice {
+        - difficulty : Difficulty
+        - random : Random
+        --
+        + Dice(difficulty : Difficulty)
+        + roll() : int
+        + getDifficulty() : Difficulty
+    }
+
+    class Game {
+        - board : Board
+        - dice : Dice
+        - players : List<Player>
+        - activePlayers : Queue<Player>
+        - winners : List<Player>
+        --
+        + Game(board : Board, dice : Dice, players : List<Player>)
+        + start() : void
+        + getWinners() : List<Player>
+    }
+
+}
+
+class Main {
+    + {static} main(args : String[]) : void
+}
+
+' Relationships
+Board "1" *-- "n²" Cell : contains >
+Cell "1" o-- "0..1" Snake : has head of >
+Cell "1" o-- "0..1" Ladder : has start of >
+Board "1" *-- "n" Snake : tracks >
+Board "1" *-- "n" Ladder : tracks >
+
+Game "1" --> "1" Board : uses >
+Game "1" --> "1" Dice : uses >
+Game "1" --> "*" Player : manages >
+
+Dice --> Difficulty : uses >
+
+Main ..> Game : creates >
+Main ..> Board : creates >
+Main ..> Dice : creates >
+Main ..> Player : creates >
+
+note bottom of Board
+  Board randomly places n snakes and n ladders.
+  No overlap, no cycles guaranteed.
+  Cell 1 and n² are always free of snake/ladder starts.
+end note
+
+note bottom of Game
+  Game ends when <=1 active player remains.
+  EASY: Consecutive sixes always valid (unlimited bonus rolls).
+  HARD: 3 consecutive sixes invalidates the turn; player resets.
+end note
+
+note right of Dice
+  Both modes: 6-sided dice (1-6).
+  Difficulty controls consecutive-sixes rule in Game.
+  EASY: unlimited sixes OK.
+  HARD: 3rd consecutive six = turn invalid.
+end note
+
+@enduml
