@@ -50,26 +50,50 @@ public class Game {
             System.out.println("── Turn " + turnNumber + " ─ " + current.getName()
                 + " (at position " + current.getPosition() + ") ──");
 
-            int diceValue = dice.roll();
-            System.out.println("  🎲 Rolled: " + diceValue);
+            int initialPosition = current.getPosition();
+            int consecutiveMaxRolls = 0;
+            boolean turnContinues = true;
+            boolean won = false;
+            int maxDiceValue = (dice.getDifficulty() == Dice.Difficulty.HARD) ? 12 : 6;
 
-            int newPosition = current.getPosition() + diceValue;
+            while (turnContinues) {
+                int diceValue = dice.roll();
+                System.out.println("  🎲 Rolled: " + diceValue);
 
-            // Rule: do not move if new position would exceed totalCells
-            if (newPosition > board.getTotalCells()) {
-                System.out.println("  ✋ Cannot move! " + newPosition + " > " + board.getTotalCells()
-                    + ". " + current.getName() + " stays at " + current.getPosition());
-                activePlayers.offer(current); // back to queue
-                continue;
+                if (diceValue == maxDiceValue) {
+                    consecutiveMaxRolls++;
+                    if (consecutiveMaxRolls == 3) {
+                        System.out.println("  🚫 Rolled 3 consecutive " + maxDiceValue + "s! Turn is invalid. Returning to position " + initialPosition);
+                        current.setPosition(initialPosition);
+                        break;
+                    }
+                    System.out.println("  🌟 Rolled a " + maxDiceValue + "! You get an extra roll.");
+                } else {
+                    turnContinues = false;
+                }
+
+                int newPosition = current.getPosition() + diceValue;
+
+                // Rule: do not move if new position would exceed totalCells
+                if (newPosition > board.getTotalCells()) {
+                    System.out.println("  ✋ Cannot move! " + newPosition + " > " + board.getTotalCells()
+                        + ". " + current.getName() + " stays at " + current.getPosition());
+                    continue;
+                }
+
+                // Apply move
+                int finalPosition = board.getFinalPosition(newPosition);
+                current.setPosition(finalPosition);
+                System.out.println("  ➡️  " + current.getName() + " moved to position " + finalPosition);
+
+                // Check win
+                if (finalPosition == board.getTotalCells()) {
+                    won = true;
+                    break;
+                }
             }
 
-            // Apply move
-            int finalPosition = board.getFinalPosition(newPosition);
-            current.setPosition(finalPosition);
-            System.out.println("  ➡️  " + current.getName() + " moved to position " + finalPosition);
-
-            // Check win
-            if (finalPosition == board.getTotalCells()) {
+            if (won) {
                 winners.add(current);
                 int rank = winners.size();
                 System.out.println("\n🏆 " + current.getName() + " has WON! (Rank #" + rank + ")\n");
