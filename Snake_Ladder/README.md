@@ -145,4 +145,4 @@ Snake_Ladder/
 
 ## 👤 Author
 
-**Shakya Prince** — [github.com/prince-shakyaa](https://github.com/prince-shakyaa)
+**Prince Shakya** — [github.com/prince-shakyaa](https://github.com/prince-shakyaa)
